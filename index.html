@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CSCEC QC</title>
+<meta name="theme-color" content="#000000">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="CSCEC QC">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  /* The same look as the app (Styles.html): night by default, day when the app is in day. */
+  :root { --bg: #000; --surface: #0C0F13; --surface-2: #14181E; --line: #1E252E; --line-2: #2E3844; --ink: #F3F6FA; --muted: #A3AFBD;
+    --brand-fill: #0078C0; --brand-press: #006AAD; --accent: #52B8F2; --on-brand: #fff; --scrim: rgba(0, 0, 0, .68); --sh: 0 18px 54px rgba(0, 0, 0, .75);
+    --font: "IBM Plex Sans Arabic", system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans Arabic", "Geeza Pro", Tahoma, sans-serif; }
+  :root[data-theme="light"] { --bg: #F2F4F7; --surface: #fff; --surface-2: #EDF0F4; --line: #E0E5EC; --line-2: #C9D1DB; --ink: #0A1620; --muted: #4B5B6D;
+    --accent: #0070B3; --scrim: rgba(10, 22, 32, .45); --sh: 0 14px 44px rgba(10, 22, 32, .18); }
+  html, body { margin: 0; height: 100%; background: #000; overflow: hidden; }
+  body { font: 400 16px/1.65 var(--font); color: var(--ink); -webkit-text-size-adjust: 100%; -webkit-font-smoothing: antialiased; }
+  button { font: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  /* The app fills the screen, inside the phone's notch and home bar. */
+  #app { position: fixed; border: 0; background: #000;
+    top: env(safe-area-inset-top, 0px); bottom: env(safe-area-inset-bottom, 0px);
+    left: env(safe-area-inset-left, 0px); right: env(safe-area-inset-right, 0px);
+    width: calc(100% - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px));
+    height: calc(100% - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)); }
+  #splash { position: fixed; inset: 0; display: grid; place-items: center; background: #000; transition: opacity .25s ease; }
+  #splash img { width: 96px; height: 96px; border-radius: 24px; }
+  #splash.gone { opacity: 0; pointer-events: none; }
+  #note { position: fixed; inset: 0; display: none; place-content: center; gap: 10px; padding: 28px; text-align: center; background: #000; color: #F3F6FA; }
+  #note b { font-size: 18px; } #note p { margin: 0; color: #A3AFBD; } #note code { direction: ltr; unicode-bidi: embed; color: #52B8F2; }
+  #note button { justify-self: center; margin-top: 8px; min-height: 48px; padding: 0 22px; border: 0; border-radius: 14px; background: #0078C0; color: #fff; font-weight: 600; }
+  /* "Allow notifications": the app's own sheet, drawn here because only this page may ask the phone. */
+  .scrim { position: fixed; inset: 0; z-index: 20; background: var(--scrim); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
+    display: flex; align-items: flex-end; justify-content: center; animation: fade .18s ease-out; }
+  .sheet { width: 100%; max-width: 640px; box-sizing: border-box; background: var(--surface); border: 1px solid var(--line-2); border-bottom: 0; border-radius: 28px 28px 0 0;
+    padding: 10px 20px calc(env(safe-area-inset-bottom, 0px) + 20px); box-shadow: var(--sh); animation: up .28s cubic-bezier(.2, .8, .2, 1); }
+  .sheet::before { content: ""; display: block; width: 40px; height: 4px; border-radius: 2px; background: var(--line-2); margin: 0 auto 18px; }
+  .sheet .hi { width: 56px; height: 56px; border-radius: 18px; display: grid; place-items: center; margin-bottom: 14px; color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 16%, transparent); }
+  .sheet .hi svg { width: 28px; height: 28px; }
+  .sheet h3 { margin: 0 0 8px; font-size: 22px; font-weight: 700; line-height: 1.35; }
+  .sheet p { margin: 0 0 22px; color: var(--muted); line-height: 1.8; }
+  .sheet .row { display: flex; gap: 10px; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 54px; padding: 0 20px; border-radius: 14px; font-weight: 600; font-size: 16px;
+    border: 1px solid var(--line); background: transparent; color: var(--muted); flex: 1 1 0; transition: transform .1s ease, background .15s ease; }
+  .btn.primary { flex: 1.7 1 0; background: var(--brand-fill); border-color: transparent; color: var(--on-brand); }
+  .btn:active { transform: scale(.98); } .btn.primary:active { background: var(--brand-press); }
+  @keyframes up { from { transform: translateY(32px); opacity: 0; } }
+  @keyframes fade { from { opacity: 0; } }
+</style>
+</head>
+<body>
+<iframe id="app" title="CSCEC QC" allow="camera; microphone; geolocation; clipboard-read; clipboard-write; fullscreen" allowfullscreen></iframe>
+<div id="splash"><img src="icons/icon-192.png" alt="CSCEC"></div>
+<div id="note"></div>
+<script src="config.js"></script>
+<script>
+(function () {
+  var frame = document.getElementById('app'), splash = document.getElementById('splash'), note = document.getElementById('note');
+  var url = String(window.APP_URL || '').trim();
+  function say(title, text, retry) {
+    note.innerHTML = '<b></b><p></p>' + (retry ? '<button type="button">إعادة المحاولة · Try again</button>' : '');
+    note.querySelector('b').textContent = title; note.querySelector('p').innerHTML = text;
+    if (retry) note.querySelector('button').onclick = function () { note.style.display = 'none'; load(); };
+    note.style.display = 'grid'; splash.className = 'gone';
+  }
+  if (!/^https:\/\/script\.google\.com\/.+\/exec$/.test(url) && !/^http:\/\/localhost[:\/]/.test(url))
+    return say('لينك التطبيق مش متسجّل', 'افتح الملف <code>config.js</code> والصق لينك التطبيق اللي بينتهي بـ <code>/exec</code>.');
+
+  function get(k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } }
+  function put(k, v) { try { if (v) localStorage.setItem(k, v); else localStorage.removeItem(k); } catch (e) { /* not kept */ } }
+
+  // The sign-in key is kept here too: a phone (an iPhone above all) may forget what the app stores inside this page,
+  // but not what this page stores. The app sends it only to the address set in its Settings (Phone app address).
+  var hex = /^[0-9a-f]{64}$/;
+  function kept() { var k = get('qc.key'); return hex.test(k) ? k : ''; }
+
+  // A notification that was tapped while the app was closed opens it on that record (?open=…).
+  var openId = (/[?&]open=([\w-]{1,64})(?:&|$)/.exec(location.search) || [])[1] || '';
+  if (location.search) try { history.replaceState(null, '', location.pathname); } catch (e) { /* stays */ }
+
+  function load() {
+    if (!navigator.onLine) return say('مفيش اتصال بالإنترنت', 'التطبيق محتاج إنترنت عشان يفتح. · No internet connection.', true);
+    var k = kept();
+    splash.className = '';
+    frame.src = url + '?shell=1' + (openId ? '&open=' + openId : '') + '&t=' + Date.now() + (k ? '#k=' + k : '');
+    openId = '';
+  }
+  frame.addEventListener('load', function () { splash.className = 'gone'; });
+
+  // ------------------------------------------------------------ talking to the app
+  var app = null, appOrigin = '', ui = { lang: 'ar', theme: 'dark' };
+  function fromApp(o) { return /^https:\/\/([a-z0-9-]+\.)*(googleusercontent\.com|google\.com)$/.test(o) || o === new URL(url).origin; }
+  function tell(msg) { if (app) try { app.postMessage(msg, appOrigin); } catch (e) { /* the app reloads */ } }
+
+  window.addEventListener('message', function (ev) {
+    if (!fromApp(String(ev.origin || ''))) return;
+    var d = ev.data || {};
+    if (typeof d !== 'object' || !d.qc) return;
+    app = ev.source; appOrigin = ev.origin;
+    if (d.lang === 'ar' || d.lang === 'en') ui.lang = d.lang;
+    if (d.theme === 'light' || d.theme === 'dark') ui.theme = d.theme;
+    if (d.qc === 'key' && (d.key === '' || hex.test(String(d.key)))) {
+      put('qc.key', d.key); // signed in, renewed, or signed out
+      if (!d.key) pushOff(true); // signed out: this phone takes no one's notifications
+    }
+    if (d.qc === 'reopen') load(); // a newer version was installed: reloaded here, so it stays an app with no browser bar
+    if (d.qc === 'push?') report();
+    if (d.qc === 'push-on' && /^[A-Za-z0-9_-]{80,100}$/.test(String(d.key || ''))) pushOn(String(d.key));
+    if (d.qc === 'push-off') pushOff(false);
+    if (d.qc === 'push-later') { put('qc.pushasked', String(Date.now())); report(); }
+  });
+
+  // ------------------------------------------------------------ notifications
+  var ua = navigator.userAgent || '';
+  var ios = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  var standalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+  var can = 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+  function ready() {
+    return Promise.race([navigator.serviceWorker.ready, new Promise(function (res, rej) { setTimeout(function () { rej(new Error('no worker')); }, 5000); })]);
+  }
+  /** What the app shows: on, off, denied, install (an iPhone outside the icon), unsupported. */
+  function state() {
+    var asked = !!get('qc.pushasked');
+    if (!can) return Promise.resolve({ state: ios && !standalone ? 'install' : 'unsupported', asked: asked });
+    if (Notification.permission === 'denied') return Promise.resolve({ state: 'denied', asked: asked });
+    return ready().then(function (reg) { return reg.pushManager.getSubscription(); }).then(function (sub) {
+      return sub ? { state: 'on', endpoint: sub.endpoint, sub: sub.toJSON(), asked: asked } : { state: 'off', asked: asked };
+    }, function () { return { state: 'unsupported', asked: asked }; });
+  }
+  function report(extra) {
+    return state().then(function (s) {
+      var m = { qc: 'push' };
+      Object.keys(s).forEach(function (k) { m[k] = s[k]; });
+      Object.keys(extra || {}).forEach(function (k) { m[k] = extra[k]; });
+      tell(m);
+    });
+  }
+  function bytes(b64) {
+    var s = atob(b64.replace(/-/g, '+').replace(/_/g, '/') + '==='.slice((b64.length + 3) % 4)), out = new Uint8Array(s.length);
+    for (var i = 0; i < s.length; i++) out[i] = s.charCodeAt(i);
+    return out;
+  }
+  function same(a, b) {
+    if (!a || !b) return false;
+    a = new Uint8Array(a);
+    if (a.length !== b.length) return false;
+    for (var i = 0; i < a.length; i++) if (a[i] !== b[i]) return false;
+    return true;
+  }
+  /** Must start inside a tap on this page (the phone shows its question only then). */
+  function subscribe(key) {
+    var asked = Notification.permission === 'granted' ? 'granted' : Notification.requestPermission();
+    return Promise.resolve(asked).then(function (perm) {
+      if (perm !== 'granted') return report({ asked: true, result: perm === 'denied' ? 'denied' : 'dismissed' });
+      return ready().then(function (reg) {
+        var k = bytes(key);
+        return reg.pushManager.getSubscription().then(function (old) {
+          if (old && same(old.options && old.options.applicationServerKey, k)) return old;
+          return (old ? old.unsubscribe() : Promise.resolve()).then(function () {
+            return reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: k });
+          });
+        });
+      }).then(function () { put('qc.pushasked', String(Date.now())); return report({ result: 'on' }); });
+    }).catch(function (e) { return report({ result: 'failed', error: String((e && e.message) || e).slice(0, 160) }); });
+  }
+  function pushOn(key) {
+    if (!can) return report();
+    // Asked straight away when the tap in the app still counts here; otherwise this page asks with its own button.
+    if (Notification.permission === 'granted' || (navigator.userActivation && navigator.userActivation.isActive)) return subscribe(key);
+    sheet(key);
+  }
+  function pushOff(quiet) {
+    if (!can) return quiet ? null : report();
+    return ready().then(function (reg) { return reg.pushManager.getSubscription(); }).then(function (sub) {
+      if (!sub) return quiet ? null : report();
+      var was = sub.endpoint;
+      return sub.unsubscribe().then(function () { return quiet ? null : report({ result: 'off', was: was }); });
+    }).catch(function () { return quiet ? null : report(); });
+  }
+
+  var TXT = {
+    ar: { t: 'السماح بالإشعارات', p: 'اضغط «سماح» ثم وافق على رسالة الموبايل، ليصلك التكليف والقرارات وكل جديد على بلاغاتك حتى والتطبيق مغلق.', ok: 'سماح', no: 'ليس الآن' },
+    en: { t: 'Allow notifications', p: 'Tap Allow, then accept the phone’s question. Tasks, decisions and whatever is new on your issues will reach you, even with the app closed.', ok: 'Allow', no: 'Not now' }
+  };
+  var BELL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16v-5a6 6 0 0 1 12 0v5l2 2H4l2-2z"/><path d="M10 21a2 2 0 0 0 4 0"/></svg>';
+  function sheet(key) {
+    var old = document.querySelector('.scrim'); if (old) old.remove();
+    var L = TXT[ui.lang] || TXT.ar, root = document.documentElement;
+    root.setAttribute('data-theme', ui.theme); root.lang = ui.lang; root.dir = ui.lang === 'en' ? 'ltr' : 'rtl';
+    var s = document.createElement('div'); s.className = 'scrim';
+    s.innerHTML = '<div class="sheet" role="dialog" aria-modal="true"><div class="hi">' + BELL + '</div><h3></h3><p></p>' +
+      '<div class="row"><button type="button" class="btn" data-no="1"></button><button type="button" class="btn primary" data-ok="1"></button></div></div>';
+    s.querySelector('h3').textContent = L.t; s.querySelector('p').textContent = L.p;
+    s.querySelector('[data-ok]').textContent = L.ok; s.querySelector('[data-no]').textContent = L.no;
+    s.addEventListener('click', function (ev) {
+      if (ev.target.closest('[data-ok]')) { s.remove(); subscribe(key); return; } // the tap itself asks the phone
+      if (ev.target === s || ev.target.closest('[data-no]')) { s.remove(); report({ result: 'later' }); }
+    });
+    document.body.appendChild(s);
+  }
+
+  // The worker says a notification was tapped while the app was open: the app opens that record.
+  if ('serviceWorker' in navigator) navigator.serviceWorker.addEventListener('message', function (ev) {
+    var d = ev.data || {};
+    if (d.qc === 'open' && /^[\w-]{1,64}$/.test(String(d.id || ''))) tell({ qc: 'open', id: String(d.id) });
+  });
+  // Opened: the number on the icon goes.
+  function seen() { if (navigator.clearAppBadge && document.visibilityState === 'visible') navigator.clearAppBadge().catch(function () {}); }
+  document.addEventListener('visibilitychange', seen);
+
+  window.addEventListener('online', function () { if (note.style.display === 'grid') { note.style.display = 'none'; load(); } });
+  load();
+  seen();
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});
+})();
+</script>
+</body>
+</html>
